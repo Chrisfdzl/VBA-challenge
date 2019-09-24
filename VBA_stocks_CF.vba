@@ -1,191 +1,118 @@
 
-Sub all()
+Sub stocks()
 
-For Each ws In Worksheets
-        Dim WorksheetName As String
-        WorksheetName = ws.Name
+    For Each ws In Worksheets
+    
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+
+        Dim tickerName As String
+        Dim lastRow As Long
+        Dim totaltickerVolume As Double
+        totaltickerVolume = 0
+        Dim summarytableRow As Long
+        summarytableRow = 2
+        Dim yearlyOpen As Double
+        Dim yearlyClose As Double
+        Dim yearlyChange As Double
+        Dim previousAmount As Long
+        previousAmount = 2
+        Dim percentChange As Double
+        Dim greatestIncrease As Double
+        greatestIncrease = 0
+        Dim greatestDecrease As Double
+        greatestDecrease = 0
+        Dim lastRowValue As Long
+        Dim greatesttotalVolume As Double
+        greatesttotalVolume = 0
+
+        lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
         
-        Sheets(ws.Name).Select
+        For i = 2 To lastRow
 
-Dim DateMinOpen As Variant
-Dim DateMaxClose As Variant
-Dim i As Double
+          totaltickerVolume = totaltickerVolume + ws.Cells(i, 7).Value
+        
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
 
-
-Dim x As Double
-
-'Clear all
-    Columns("I:Q").Select
-    Selection.Clear
-'Headings
-    Cells(1, 9).Value = "Ticker"
-    Cells(1, 10).Value = "Yearly Change"
-    Cells(1, 11).Value = "Percent Change"
-    Cells(1, 12).Value = "Total Stock Volume"
-    Cells(2, 15).Value = "Greatest % Increase"
-    Cells(3, 15).Value = "Greatest % Decrease"
-    Cells(4, 15).Value = "Greatest Total Volume"
-    Cells(1, 16).Value = "Ticker"
-    Cells(1, 17).Value = "Volume"
-
-x = 2
-i = 2
-
-Cells(x, 9).Value = Cells(x, 1).Value
-
-DateMinOpen = Cells(i, 3).Value
-
-
-
-LastRow = Cells(Rows.Count, 1).End(xlUp).Row
-
-For i = 2 To LastRow
-
-
-
-
-If Cells(i, 1).Value = Cells(x, 9).Value Then
-
-
-TotalV = TotalV + Cells(i, 7).Value
-
-
-DateMaxClose = Cells(i, 6).Value
-
-
-     Else
-     
-
-'calculated fields
-Cells(x, 10).Value = DateMaxClose - DateMinOpen
-
-                If DateMaxClose <= 0 Then
             
-                    Cells(x, 11).Value = 0
-                    
-                    Else
-                    
+           tickerName = ws.Cells(i, 1).Value
+           ws.Range("I" & summarytableRow).Value = tickerName
+           ws.Range("L" & summarytableRow).Value = totaltickerVolume
+           totaltickerVolume = 0
+            yearlyOpen = ws.Range("C" & previousAmount)
+            yearlyClose = ws.Range("F" & i)
+            yearlyChange = yearlyClose - yearlyOpen
+            ws.Range("J" & summarytableRow).Value = yearlyChange
 
-                    Cells(x, 11).Value = (DateMaxClose / DateMinOpen) - 1
-                    
-                    
-                End If
-                
-                    Cells(x, 11).Style = "Percent"
-                        
-            If Cells(x, 10).Value >= 0 Then
-                                
-                Cells(x, 10).Interior.ColorIndex = 4
-                                    
-                    Else
-                                
-                Cells(x, 10).Interior.ColorIndex = 3
-                    
+         ' Percent Change
+            If yearlyOpen = 0 Then
+            percentChange = 0
+            Else
+            yearlyOpen = ws.Range("C" & previousAmount)
+            percentChange = yearlyChange / yearlyOpen
             End If
-                
-Cells(x, 12).Value = TotalV
-
-'reset variables
-
-DateMinOpen = Cells(i, 3).Value
-
-TotalV = Cells(i, 7).Value
-
-x = x + 1
-Cells(x, 9).Value = Cells(i, 1).Value
-
-End If
-
-Next i
-
-'calculated fields final
-Cells(x, 10).Value = DateMaxClose - DateMinOpen
-
-                If DateMaxClose <= 0 Then
-            
-                    Cells(x, 11).Value = 0
-                    
-                    Else
-
-                    Cells(x, 11).Value = (DateMaxClose / DateMinOpen) - 1
-                    
-
+        
+            ws.Range("K" & summarytableRow).NumberFormat = "0.00%"
+            ws.Range("K" & summarytableRow).Value = percentChange
+           ' Conditional Formatting
+           If ws.Range("J" & summarytableRow).Value >= 0 Then
+           ws.Range("J" & summarytableRow).Interior.ColorIndex = 4
+             Else
+            ws.Range("J" & summarytableRow).Interior.ColorIndex = 3
                 End If
-                
-                    Cells(x, 11).Style = "Percent"
-                        
-            If Cells(x, 10).Value >= 0 Then
-                                
-                Cells(x, 10).Interior.ColorIndex = 4
-                                    
-                    Else
-                                
-                Cells(x, 10).Interior.ColorIndex = 3
-                    
-            End If
-                
-Cells(x, 12).Value = TotalV
-'''Start greatest Section'
-        Volume_Greatest_Decrease = 100000
-        Ticker_Greatest_Decrease = 100000
-        
-        LastRow = Cells(Rows.Count, 9).End(xlUp).Row
-        
-        For x = 2 To LastRow
-        
-        
-        If Cells(x, 11).Value > Volume_Greatest_Increase Then
-            
-            Ticker_Greatest_Increase = Cells(x, 9).Value
-            Volume_Greatest_Increase = Cells(x, 11).Value
-        
-        End If
-        
-        
-        If Cells(x, 11).Value < Volume_Greatest_Decrease Then
-            
-            Ticker_Greatest_Decrease = Cells(x, 9).Value
-            Volume_Greatest_Decrease = Cells(x, 11).Value
-        
-        End If
-        
-        
-        If Cells(x, 12).Value > Volume_Greatest_Total_Volume Then
-            
-            Ticker_Greatest_Total_Volume = Cells(x, 9).Value
-            Volume_Greatest_Total_Volume = Cells(x, 12).Value
-        
-        End If
-        
-        Next x
-        
-Cells(2, 16).Value = Ticker_Greatest_Increase
-Cells(2, 17).Value = Volume_Greatest_Increase
-Cells(2, 17).Style = "Percent"
-Cells(3, 16).Value = Ticker_Greatest_Decrease
-Cells(3, 17).Value = Volume_Greatest_Decrease
-Cells(3, 17).Style = "Percent"
-Cells(4, 16).Value = Ticker_Greatest_Total_Volume
-Cells(4, 17).Value = Volume_Greatest_Total_Volume
-'resize
-Columns("I:Q").EntireColumn.AutoFit
 
-Cells(1, 1).Select
+           summarytableRow = summarytableRow + 1
+           previousAmount = i + 1
+                
+                End If
+            Next i
 
-Next ws
+            ' Greatest Section % Increase, Decrease and  Total Volume
+            lastRow = ws.Cells(Rows.Count, 11).End(xlUp).Row
+        
+            For i = 2 To lastRow
+                If ws.Range("K" & i).Value > ws.Range("Q2").Value Then
+           ws.Range("Q2").Value = ws.Range("K" & i).Value
+           ws.Range("P2").Value = ws.Range("I" & i).Value
+                End If
+
+          If ws.Range("K" & i).Value < ws.Range("Q3").Value Then
+             ws.Range("Q3").Value = ws.Range("K" & i).Value
+             ws.Range("P3").Value = ws.Range("I" & i).Value
+               End If
+
+           If ws.Range("L" & i).Value > ws.Range("Q4").Value Then
+             ws.Range("Q4").Value = ws.Range("L" & i).Value
+             ws.Range("P4").Value = ws.Range("I" & i).Value
+                End If
+
+            Next i
+    
+        ws.Range("Q2").NumberFormat = "0.00%"
+        ws.Range("Q3").NumberFormat = "0.00%"
+        ws.Columns("I:Q").AutoFit
+
+    Next ws
 
 End Sub
-Sub reset()
+
+Sub reset_button()
 
 For Each ws In Worksheets
         Dim WorksheetName As String
         WorksheetName = ws.Name
         
         Sheets(ws.Name).Select
-'Clear all
+
 Columns("I:Q").Select
 Selection.Clear
-'resize
 Columns("I:Q").EntireColumn.AutoFit
     Cells(1, 1).Select
     
